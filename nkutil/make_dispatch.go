@@ -10,11 +10,11 @@ import (
 	"github.com/telyn/midi/sysex"
 )
 
-// DispatchConfig is a simplified struct to
+// DispatchConfig is a simplified struct to make writing programs to work with NanoKONTROLs in Native Mode easier
 type DispatchConfig struct {
-	NKSysExHandler       format4.SingleDeviceHandler
-	SearchHandler        search.Handler
-	ControlChangeHandler msgs.Handler
+	NKSysExHandler        format4.SingleDeviceHandler
+	SearchResponseHandler func(search.Response) error
+	ControlChangeHandler  msgs.Handler
 }
 
 func (dc DispatchConfig) Dispatcher() midi.Dispatcher {
@@ -29,7 +29,9 @@ func (dc DispatchConfig) Dispatcher() midi.Dispatcher {
 							},
 						},
 					},
-					Search: dc.SearchHandler,
+					Search: search.Handler{
+						Response: dc.SearchResponseHandler,
+					},
 				},
 			},
 			msgs.ControlChange: dc.ControlChangeHandler,
